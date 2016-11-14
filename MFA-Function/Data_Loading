@@ -1,0 +1,44 @@
+## ------------------ To load the data and have the right column names
+
+load_data <- function(filename){
+  data <- read.csv(filename, header = FALSE, stringsAsFactors = FALSE, fill = TRUE)
+
+  line1 <- gsub("[^A-Za-z0-9]", ",", data[1,1])
+  line1 <- gsub(",,"," ",line1)
+  line1 <- gsub(",","",line1)
+
+  data[1,] <- strsplit(line1," ")[[1]]
+  colnames(data) = data[1, ]
+  rownames(data) = data[,1]
+  data = data[-1,-1]
+  data
+}
+
+wines <- load_data('wines.csv')
+
+## ------------ To scale each small tables
+
+# Small table indices (example on the two first)
+sets = list(1:6,7:12)
+
+preprocess <- function(indices,data){
+  M = data.matrix(data[,indices])
+  colnames(M) <- NULL
+  rownames(M) <- NULL
+  N = scale(M, center = TRUE, scale = FALSE)
+  N = scale(N, center = FALSE, scale = apply(N, 2, function(x) sqrt(sum(x^2))))
+  N
+}
+
+M1 = preprocess(sets[[1]],wines)
+M2 = preprocess(sets[[2]],wines)
+
+
+# --------- PCA on the small tables
+pca <- function(M){
+  svdM = svd(M)
+  print(svdM)
+  G = svdM$u %*% diag(svdM$d)
+  weight = 1/(max(svdM$d)^2)
+  weight
+}
