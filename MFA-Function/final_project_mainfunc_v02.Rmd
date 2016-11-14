@@ -1,0 +1,79 @@
+```{r}
+mfa <- function(data, sets, ncomps = NULL, center = TRUE, scale = TRUE) {
+#data can be matrix or data frame
+#sets is a list of vectors indicating sets/blocks of variables, can be character vectors with names or numeric vectors with position of variables in the data table
+#ncomps is an integer indicating how many components/factors are to be extracted, NULL indicates all components
+#center can be logical value or numeric vector of length equal to number of active variables; if numeric vector, each variable has corresponding value subtracted from it; if TRUE, subtract column means
+#scale can be logical value or numeric vector of length equal to number of active variables
+  
+#return vector of eigenvalues, matrix of common factor scores, matrix of partial factor scores, matrix of loadings
+  
+  #preprocessing
+  new_data <- scale(data[,2:ncol(data)], center = center, scale = scale)
+  #scale so that sum of squares of each column equals 1
+  new_data_squared <- new_data^2
+  colsums <- colSums(new_data_squared, na.rm = TRUE)
+  data_processed <- 1/colsums[1] * new_data[,1]
+  for(i in 2:ncol(new_data_squared)) {
+    data_processed <- cbind(data_processed, 1/colsums[i] * new_data[,i])
+  }
+  
+  #separate data into individual tables
+  tables <- list()
+  for(i in 1:length(sets)) {
+    tables[[i]] <- subset(wine_data, select = sets[[i]])
+  }
+  
+  #create nested list of svd for each table
+  svd_list <- list()
+  for(i in 1:length(sets)) {
+    svd_list[[i]] <- svd(tables[[i]])
+  }
+  #replace with lapply
+  
+  #create A (vector of weights)
+  weights <- vector()
+  for(i in 1:length(sets)) {
+    weights[i] <- svd_list[[i]]$d[1]
+    #1/singular_value^2
+  }
+  A <- diag(weights)
+  
+  #create M (vector of masses)
+  M <- diag(rep(1/nrow(data), nrow(data)))
+  
+  #MFA as simple PCA
+  x_tilde <- sqrt(weights[1]) * tables[[1]]
+  for(i in 2:length(sets)) {
+    x_tilde <- cbind(x_tilde, sqrt(weights[i]) * table[[i]])
+  }
+  x_svd <- svd(x_tilde)
+  singular_values <- x_svd$d
+  eigen_values <- singular_values^2
+  factor_scores <- x_svd$u %*% x_svd$d
+  loadings <- x_svd$v %*% A^(-1/2)
+  
+  #partial loadings
+  q_transpose <- t(loadings)
+  partial_loadings <- list()
+  for(i in 1:length(sets)) {
+    partial_loadings[[i]] <- t(subset(q_transpose, select = sets[[i]]))
+  }
+  
+  #matrix of partial factor scores
+  F_partial <- length(sets) * weights[1] * tables[[1]] %*% partial_loadings[[1]]
+  for(i in 2:length(sets)) {
+    F_partial <- cbind(F_partial, length(sets) * weights[i] * tables[[i]] %*% partial_loadings[[i]])
+  }
+  
+  res <- list(
+    eigen_values = eigen_values,
+    common_factor_scores = factor_scores,
+    partial_factor_scores = F_partial,
+    loadings = loadings
+  )
+  class(res) <- "mfa"
+  res
+}
+```
+
