@@ -1,0 +1,96 @@
+Hey everyone! Here is a new version of the code we discussed yesterday. There is still a lot of stuff to work out (mostly having to do with OOP), and I haven't tested it yet to make sure it gives the right answers. But I split everything into individual functions, which should make it easier to debug, and I updated some of the code to hopefully make it more efficient and straightforward. There are lots of little questions in the comments, so it would be great to discuss those on Wednesday if you have any thoughts!
+-Laura, 11/15
+
+```{r}
+#took stuff from Beatrice's code, which was much smarter than mine :)
+#it shouldn't matter if we preprocess the whole data set at once, or if we break it up into individual tables first, right? Since this just operates on a single column?
+preprocess <- function(data, center, scale) {  
+  new_data <- scale(data[,2:ncol(data)], center = center, scale = scale)
+  #scale again so that sum of squares of each column equals 1
+  data_processed <- scale(new_data, center = FALSE, scale = apply(new_data, 2, function(x) sqrt(sum(x^2))))
+  return(data_processed)
+}  
+
+#separate data into individual tables and store in a list
+#should this list be an object?
+data_tables <- function(data, sets) {  
+  tables <- list()
+  for(i in 1:length(sets)) {
+    tables[[i]] <- subset(wine_data, select = sets[[i]])
+  }
+  return(tables)
+}  
+
+#determine the weights for each individual table
+#should this be a method?
+weights <- function(list) {
+  #create a nested list with the svd matrices for each data table
+  svd_list <- lapply(list, svd)
+  
+  #create A (vector of weights)
+  weights <- vector()
+  for(i in 1:length(list)) {
+    #extract first singular value from diagonal matrix produced in SVD
+    val <- svd_list[[i]]$d[1]
+    #calculate weight from singular value
+    weights[i] <- 1/val^2
+  }
+  return(weights)
+}  
+
+#create constraint matrices
+A <- diag(weights)
+M <- diag(rep(1/nrow(data), nrow(data)))
+
+#MFA as simple PCA
+#should this also be a method?
+pca_func <- function(list) {
+  weights <- weights(list)
+  A <- diag(weights)
+  x_tilde <- matrix(unlist(list), nrow(list[[1]])) %*% A^(1/2)
+  x_svd <- svd(x_tilde)
+  return(x_svd)
+}  
+
+#Calculate partial factor scores
+partial_factor_scores <- function(svd_list) {
+  #input should be svd of X
+  #calculate partial loadings - not sure if this is right! See page 5, equation 15 from paper
+  q_transpose <- t(list$v)
+  partial_loadings <- list()
+  for(i in 1:length(sets)) {
+    partial_loadings[[i]] <- t(subset(q_transpose, select = sets[[i]]))
+  }
+  
+  #list of partial factor scores
+  F_partial <- list()
+  for(i in 1:length(list)) {
+    F_partial[[i]] <- length(list) * weights[i] * list[[i]] %*% partial_loadings[[i]]
+  }
+  return(F_partial)
+}
+
+make_mfa <- function(svd_list) {
+  res <- list(
+    eigen_values = svd_list$d,
+    common_factor_scores = svd_list$u %*% svd_list$d,
+    partial_factor_scores = F_partial,
+    loadings = loadings
+  )
+  class(res) <- "mfa"
+  res
+}
+
+mfa <- function(data, sets, ncomps = NULL, center = TRUE, scale = TRUE) {
+#data can be matrix or data frame
+#sets is a list of vectors indicating sets/blocks of variables, can be character vectors with names or numeric vectors with position of variables in the data table
+#ncomps is an integer indicating how many components/factors are to be extracted, NULL indicates all components
+#center can be logical value or numeric vector of length equal to number of active variables; if numeric vector, each variable has corresponding value subtracted from it; if TRUE, subtract column means
+#scale can be logical value or numeric vector of length equal to number of active variables
+#return vector of eigenvalues, matrix of common factor scores, matrix of partial factor scores, matrix of loadings
+  data_tables <- data_tables(data, sets)
+  svd_list <- pca_func(data_tables)
+  make_mfa(svd_list)
+}
+```
+
