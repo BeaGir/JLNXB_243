@@ -1,5 +1,10 @@
-## ------------------ To load the data and have the right column names
+VERSION 11/16 9:30 - Béatrice Girard
 
+## The common factor matrices/eigenvalues obtained are right.
+## Will look at the partial factors
+
+# ------ To load the data
+```{r}
 load_data <- function(filename){
   data <- read.csv(filename, header = FALSE, stringsAsFactors = FALSE, fill = TRUE)
 
@@ -14,12 +19,13 @@ load_data <- function(filename){
   data
 }
 
+# We run the function
 wines <- load_data('wines.csv')
 
-## ------------ To scale each small tables
+```
 
-# Small table indices (example on the two first)
-sets = list(1:6,7:12)
+# --------- To scale and center
+```{r}
 
 preprocess <- function(indices,data){
   M = data.matrix(data[,indices])
@@ -30,15 +36,59 @@ preprocess <- function(indices,data){
   N
 }
 
-M1 = preprocess(sets[[1]],wines)
-M2 = preprocess(sets[[2]],wines)
+# We run the function
+sets = list(1:6,7:12,13:18,19:23,24:29,30:34,35:38,39:44,45:49,50:53)
+length_sets = unlist(lapply(sets, length))
+K = length(sets)
 
-
-# --------- PCA on the small tables
-pca <- function(M){
-  svdM = svd(M)
-  print(svdM)
-  G = svdM$u %*% diag(svdM$d)
-  weight = 1/(max(svdM$d)^2)
-  weight
+tables = list()
+for (k in 1:K){
+  tables[[k]] <- preprocess(sets[[k]],wines)
 }
+
+```
+# --------- SVD decomposition
+```{r}
+
+pca <- function(M){
+  # This function returns the svd of a matrix and the associated weight.
+  svdM = svd(M)
+  G = svdM$u %*% diag(svdM$d)
+  svdM$weight = 1/(max(svdM$d)^2)
+  svdM
+}
+
+#weighted_tables = lapply(tables,FUN = function(A){A*sqrt(pca(A)$weight)})
+
+concat_tables = do.call(cbind, tables)
+
+weights = unlist(lapply(tables,FUN = function(A){pca(A)$weight}))
+
+weightsA = c()
+for (k in 1:K){
+  weightsA <- c(weightsA, rep(weights[k],length_sets[k]))
+}
+
+A = diag(weightsA)
+
+weightsM = rep(1/12,12)
+#M = diag(rep(1/12,12))
+
+
+# Uses the package MFAg
+finalsvd <- GSVD(concat_tables, PLin = weightsM, PCol = weightsA)
+
+P <- finalsvd$u
+D <- diag(finalsvd$d)
+Q <- finalsvd$v
+
+EigenValues <- finalsvd$d
+CommonFactor <- P %*% D
+
+PartialFactor = concat_tables
+for (k in 1:K){
+  PartialFactor[,sets[[k]]] <- K*weights[k]*tables[[k]]*Q[sets[k],]
+}
+
+
+```
