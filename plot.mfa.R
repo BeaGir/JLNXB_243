@@ -22,8 +22,10 @@ plot_factor_scores <- function(mymfa, d1 = 1, d2 = 2) {
            code = 2, lwd = 2)
     arrows(y0 = -1*margin-0.2, x0 = 0, y1 = margin+0.2, x1 = 0, length=0.05,angle=20,
            code = 2, lwd = 2)
-    text(0, margin+0.3, "2", cex= 0.7)
-    text(margin+0.3, 0, "1", cex= 0.7)
+    d1_string <- paste(d1)
+    d2_string <- paste(d2)
+    text(0, margin+0.3, d2_string, cex= 0.7)
+    text(margin+0.3, 0, d1_string, cex= 0.7)
   }
 }
 
@@ -56,8 +58,10 @@ plot_pfs_vl <- function (mymfa, X=1, d1 = 1, d2 = 2, loading_labels = NULL) {
            code = 2, lwd = 2)
     arrows(y0 = -1*margin-0.2, x0 = 0, y1 = margin+0.2, x1 = 0, length=0.05,angle=20,
            code = 2, lwd = 2)
-    text(0, margin+0.3, "2", cex= 0.7)
-    text(margin+0.3, 0, "1", cex= 0.7)
+    d1_string <- paste(d1)
+    d2_string <- paste(d2)
+    text(0, margin+0.3, d2_string, cex= 0.7)
+    text(margin+0.3, 0, d1_string, cex= 0.7)
     
     points(rescaled_loadings[,d1], rescaled_loadings[,d2], col = "grey", pch=12)
     if (!is.null(loading_labels)) {
@@ -83,13 +87,13 @@ plot_pfs_vl_all <- function (mymfa, d1 = 1, d2 = 2, loading_labels = NULL) {
     #I talked to Gaston and he agreed with me that we'd better not produce all plots on one page
     #thus I am plotting them out one by one in new windows
     for (i in 1:total) {
-      dev.new()
+      #dev.new()
       plot_pfs_vl(mymfa, i, d1, d2, loading_labels)
     }
   }
   else {
     for (i in 1:total) {
-      dev.new()
+      #dev.new()
       plot_pfs_vl(mymfa, i, d1, d2, loading_labels = loading_labels[,i])
     }
     
