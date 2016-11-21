@@ -1,0 +1,16 @@
+I can't figure out a good way to get the column names to say something like "Component 1, 2, 3, etc" anyone have any ideas?
+
+```{r}
+eigensummary <- function(x, ...) UseMethod("eigensummary") 
+eigensummary.mfa <- function(x, ...) {
+  Singular_value <- round(sqrt(x$eigen_values), 3)
+  Eigenvalue <- round(x$eigen_values, 3)
+  Cumulative <- cumsum(Eigenvalue)
+  Percent_Inertia <- round(100/Cumulative[length(Cumulative)] * Eigenvalue)
+  Cumulative_inertia <- cumsum(Percent_Inertia)
+  summary_matrix <- rbind(Singular_value, Eigenvalue, Cumulative, Percent_Inertia, Cumulative_inertia)
+  output_matrix <- data.frame(summary_matrix)
+  output_matrix
+}
+```
+
