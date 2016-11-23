@@ -12,8 +12,6 @@
 #' 
 #' contrib_obs1 <- contrib_obs(mymfa1)
 
-source('Project_Concat.R')
-
 contrib_obs <- function(mfaex){
   # INPUT
   # An mfa object
