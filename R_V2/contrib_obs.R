@@ -17,10 +17,11 @@ source('Project_Concat.R')
 contrib_obs <- function(mfaex){
   # INPUT
   # An mfa object
-  
   # OUTPUT
   # A matrix containing the contribution of each observation to the components
   # ctr[i,l] = contrib. wine i to the component l
+  
+  check_mfa(mfaex)
   
   Factor = mfaex$common_factor_scores
   # Number of observations
@@ -35,4 +36,11 @@ contrib_obs <- function(mfaex){
   # We compute the contributions and store it in a matrix.
   ctr = (m*Factor^2)/lambda
   ctr
+}
+
+check_mfa <- function(mfaex){
+  if(!(class(mfaex) == "mfa")){
+    stop("\n 'mfaex must be an object of class mfa")
+  }
+  TRUE
 }
