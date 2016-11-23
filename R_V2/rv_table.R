@@ -64,16 +64,21 @@ check_sets <- function(dataset, sets){
     stop("\n 'sets' must be a list")
   }
   for (i in 1:length(sets)){
-    if (!is.numeric(sets[[i]])){
+    seti = sets[[i]]
+    if (!is.numeric(seti)){
       stop("\n 'sets' must be a list of numeric indices")
     }
-    if (min(sets[[i]] <=0)|max(sets[[i]])> ncol(dataset)){
+    if (min(seti <=0)|max(seti)> ncol(dataset)){
       stop("\n 'sets' must be consistent with the dataset dimensions")
     }
-    if (!(is.numeric(data.matrix(dataset)))){
-      stop("\n 'sets' must designate numeric variables of the dataset")
+    for (j in 1:length(seti)){
+      if (!(is.numeric(unlist(dataset[,seti[j]])))){
+        stop("\n 'sets' must designate numeric variables of the dataset")
+      }
     }
+    
   }
+  TRUE
 }
 
 
