@@ -1,6 +1,8 @@
 #' @title contrib_tables
 #' @description Computes the contribution of each table to each dimension \code{"contrib_tables"}
-#' @param mfaex, an object of class "mfa"
+#' @param mfaex, an object of class "mfa" builded from an original data-set containing the 'tables'
+#' @param tables, some original tables
+#' @param setex, the sets of variables used in the MFA (mapping between the tables and the mfa variables)
 #' @return the matrix of contributions M[k,l] is the contribution of table k to dimension l
 #' @export
 #' @examples
@@ -11,10 +13,14 @@
 #' tables <- data_tables(wines, sets, TRUE, scaling_vec)
 #' mymfa1 <- mfa(wines, sets, ncomps = 2, center = TRUE, scale = scaling_vec)
 #' 
+#' sets <- lapply(sets, FUN=function(vec){vec-1})
 #' contrib_table1 <- contrib_tables(mymfa1, sets, tables)
 
 
 contrib_tables <- function(mfaex, setex, tables){
+  
+  check_contrib(mfaex, sets, tables)
+  
   # We compute the contribution of each variables
   ctrvar = contrib_var(mfaex, setex, tables)
   
@@ -30,4 +36,37 @@ contrib_tables <- function(mfaex, setex, tables){
   }
   
   ctrtables
+}
+
+
+check_contrib <- function(mfaex, sets, tables){
+  if(!(class(mfaex) == "mfa")){
+    stop("\n 'mfaex must be an object of class mfa")
+  }
+  if (!(is.list(sets))){
+    stop("\n 'sets' must be a list")
+  }
+  if (!(is.list(tables))){
+    stop("\n 'tables' must be a list")
+  }
+  if (length(sets) != length(tables)){
+    stop("\n 'sets' and 'tables' must have the same number of elements")
+  }
+  for (i in 1:length(sets)){
+    if (!is.numeric(sets[[i]])){
+      stop("\n 'sets' must be a list of numeric indices")
+    }
+    if (!(is.numeric(tables[[i]]))){
+      stop("\n 'tables' must contain only numeric elements")
+    }
+    if (min(sets[[i]] <=0)|max(sets[[i]])> nrow(mfaex$loadings)){
+      stop("\n 'sets' must be consistent with the number of variables in the mfa")
+    }
+    if (length(sets[[i]]) != ncol(tables[[i]])){
+      stop("\n 'sets' must be a consistent mapping of the tables columns to the mfa variables.")
+    }
+  }
+  
+  TRUE
+}
 }
