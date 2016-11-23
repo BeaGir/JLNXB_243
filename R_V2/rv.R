@@ -10,13 +10,13 @@
 #' sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
 #' scaling_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
 #' tables <- data_tables(wines, sets, TRUE, scaling_vec)
+#' 
 #' RVtable1_table2 <- RV(tables[[1]], tables[[2]])
 #' 
 
 RV <- function(table1, table2){
   # INPUT
-  # 2 matrices (subsets of a dataframe)
-  
+  # Two matrices (subsets of a dataframe)
   # OUTPUT
   # The Rv coefficient between these two tables
   
@@ -41,4 +41,5 @@ check_table <- function(table1,table2){
   if (!(nrow(table1) == nrow(table2))){
     stop("\n 'table1' and 'table2' must have the same number of rows")
   }
+  TRUE
 }
