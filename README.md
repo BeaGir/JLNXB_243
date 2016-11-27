@@ -16,11 +16,13 @@ New Folders, following final package structure
 
 
 The folder MFA_Package (just uploaded the first version, the only thing left is the unit test for the main function)
+
 Little tips for install the MFA package in your laptop
 - download the MFA.zip
 - unzip it
 - open the MFA.Rproj in you Rstudio
 - run the code in the file "devtools-mfa.R" (the package mfa should be installed in your laptop after this)
+
 Also, everyone please take a look at the vignettes via Rstudio Console (Thanks!)
 - library(MFA)
 - vignette("MFA-vignette") 
