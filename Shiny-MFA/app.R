@@ -54,10 +54,11 @@ server <- shinyServer(function(input, output) {
    output$distPlot <- renderPlot({
       # generate a plot
       plot(mymfa, type = input$type, X = 1, d1 = 1, d2 = 2, loading_labels = NULL)
-#three things to fix:
+#4 things to fix:
      #1- in type 3, there shall be 10 ouputs, however only 1 is shown
      #2- in type 2 and 5, adding labels might cause some error
      #3- adding more slide bars/etc to make this app fancier
+     #4- a plot for eigenvalue
      
         })
 })
