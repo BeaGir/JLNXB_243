@@ -1,4 +1,56 @@
+#' @title Plot of object mfa
+#' @description Plots factor score, partial dactor score and partial loadings
+#' @param mfa an object of class \code{"mfa"}
+#' @param type indicating which plot to output. 1: factor score plot; 2:factor score and partial loadings; 3: produce factor score and partial loadings on all components; 4: partial factor score; 5: partial loadings
+#' @param d1 indicating the x-axis
+#' @param d2 indicating the y-axis
+#' @param X indicating the target table to produce a plot
+#' @param loading_labels the labels for partial loadings
+#' @param \dots arguments to be passed to/from other methods
+#' @examples
+#'  \dontrun{
+#' wines <- read.csv("https://raw.githubusercontent.com/ucb-stat243/stat243-fall-2016/master/problem-sets/final-project/data/wines.csv", stringsAsFactors = FALSE)
+#' sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
+#' scaling_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
+#' mymfa <- mfa(wines, sets, ncomps = 2, T, scaling_vec)
+#' 
+#' plot(mymfa, type = 1)
+#' plot(mymfa, type = 2, X = 1)
+#' plot(mymfa, type = 2, X = 1, loading_labels = c("Cat Pee", "Passion Fruit", "Green Pepper", "Mineral", "Smoky", "Citrus"))
+#' plot(mymfa, type = 3, loading_labels = NULL)
+#' plot(mymfa, type = 4, X = 1) 
+#' plot(mymfa, type = 5, X = 1) 
+#'  }
+#' @export
+plot.mfa <- function(mfa, type, d1 = 1, d2 = 2, X = 1, loading_labels = NULL, ...) {
+  if (type != 1 & type != 2 & type != 3 & type != 4 & type != 5) {
+    stop("invalid type input: pecify from 1, 2, 3, 4 or 5")
+  }
+  else {
+    #type = 1, plot_factor_scores
+    if (type == 1) {
+      plot_factor_scores(mymfa = mfa, d1 = d1, d2 = d2)
+    }
+    #type = 2, plot_pfs_vl
+    else if (type ==2 ) {
+      plot_pfs_vl(mymfa = mfa, X=X, d1 = d1, d2 = d2, loading_labels = loading_labels)
+    }  
+    #type = 4, plot_pfs
+    else if (type ==4 ) {
+      plot_pfs(mymfa = mfa, X=X, d1 = d1, d2 = d2)
+    }  
+    #type = 5, plot_vl
+    else if (type ==5 ) {
+      plot_vl(mymfa = mfa, X=X, d1 = d1, d2 = d2, loading_labels = loading_labels)
+    }  
+    #type = 3, plot_pfs_vl_all
+    else {
+      plot_pfs_vl_all(mymfa=mfa, d1 = d1, d2 = d2, loading_labels = loading_labels)
+    }
+  }
+}
 
+#all below are auxiliary functions for plot.mfa() method
 #plot for factor scores
 #mymfa: the mfa object
 #d1: horizontal axes
@@ -30,32 +82,32 @@ plot_factor_scores <- function(mymfa, d1 = 1, d2 = 2) {
 }
 
 #plot for partial factor scores  
-  plot_pfs <- function (mymfa, X=1, d1 = 1, d2 = 2) {
-    if (ncol(mymfa$common_factor_scores) < max(d1, d2)) {
-      stop("invalid dimension input: common factor score does not have enough dimension")
-    }
-    else {
-      data <- data.frame(mymfa$partial_factor_scores[[X]],objects = mymfa$observation_names, cl = rainbow(nrow(mymfa$common_factor_scores)))
-     
-      margin <- max(max(abs(data[,d1])),max(abs(data[,d2])))
-      plot(data[, d1], data[, d2], col= data$cl, pch=16, axes = FALSE, 
-           panel.first = grid(), 
-           xlim = c(-1*margin-0.5,margin+0.5), 
-           ylim = c(-1*margin-0.5,margin+0.5),
-           xlab = NA,
-           ylab = NA)
-      legend("bottomleft", cex=0.5,legend = data$objects ,col=data$cl ,pch=16)
-      arrows(x0 = -1*margin-0.2, y0 = 0, x1 = margin+0.2, y1 = 0, length=0.05,angle=20,
-             code = 2, lwd = 2)
-      arrows(y0 = -1*margin-0.2, x0 = 0, y1 = margin+0.2, x1 = 0, length=0.05,angle=20,
-             code = 2, lwd = 2)
-      d1_string <- paste(d1)
-      d2_string <- paste(d2)
-      text(0, margin+0.3, d2_string, cex= 0.7)
-      text(margin+0.3, 0, d1_string, cex= 0.7)
-      
-     }
-    }
+plot_pfs <- function (mymfa, X=1, d1 = 1, d2 = 2) {
+  if (ncol(mymfa$common_factor_scores) < max(d1, d2)) {
+    stop("invalid dimension input: common factor score does not have enough dimension")
+  }
+  else {
+    data <- data.frame(mymfa$partial_factor_scores[[X]],objects = mymfa$observation_names, cl = rainbow(nrow(mymfa$common_factor_scores)))
+    
+    margin <- max(max(abs(data[,d1])),max(abs(data[,d2])))
+    plot(data[, d1], data[, d2], col= data$cl, pch=16, axes = FALSE, 
+         panel.first = grid(), 
+         xlim = c(-1*margin-0.5,margin+0.5), 
+         ylim = c(-1*margin-0.5,margin+0.5),
+         xlab = NA,
+         ylab = NA)
+    legend("bottomleft", cex=0.5,legend = data$objects ,col=data$cl ,pch=16)
+    arrows(x0 = -1*margin-0.2, y0 = 0, x1 = margin+0.2, y1 = 0, length=0.05,angle=20,
+           code = 2, lwd = 2)
+    arrows(y0 = -1*margin-0.2, x0 = 0, y1 = margin+0.2, x1 = 0, length=0.05,angle=20,
+           code = 2, lwd = 2)
+    d1_string <- paste(d1)
+    d2_string <- paste(d2)
+    text(0, margin+0.3, d2_string, cex= 0.7)
+    text(margin+0.3, 0, d1_string, cex= 0.7)
+    
+  }
+}
 
 
 
@@ -79,7 +131,7 @@ plot_vl <- function (mymfa, X=1, d1 = 1, d2 = 2, loading_labels = NULL) {
       v <- loading_labels
     }
     data <- data.frame(rescaled_loadings, objects = v, cl = rainbow(length(v)))
-  
+    
     margin <- max(max(abs(data[,1])),max(abs(data[,2])))
     plot(data[, 1], data[, 2], col= data$cl, pch=16, axes = FALSE, 
          panel.first = grid(), 
@@ -92,8 +144,8 @@ plot_vl <- function (mymfa, X=1, d1 = 1, d2 = 2, loading_labels = NULL) {
       text(rescaled_loadings[,d1], rescaled_loadings[,d2], labels=loading_labels[1:nrow(rescaled_loadings)], cex= 0.7, pos=4)
     }
     else {
-    legend("bottomleft", cex=0.5,legend = data$objects ,col=data$cl ,pch=16)
-      }
+      legend("bottomleft", cex=0.5,legend = data$objects ,col=data$cl ,pch=16)
+    }
     arrows(x0 = -1*margin-0.2, y0 = 0, x1 = margin+0.2, y1 = 0, length=0.05,angle=20,
            code = 2, lwd = 2)
     arrows(y0 = -1*margin-0.2, x0 = 0, y1 = margin+0.2, x1 = 0, length=0.05,angle=20,
@@ -177,34 +229,3 @@ plot_pfs_vl_all <- function (mymfa, d1 = 1, d2 = 2, loading_labels = NULL) {
     
   }
 }
-
-#make it a method
-
-plot.mfa <- function(mfa, type, d1 = 1, d2 = 2, X = 1, loading_labels = NULL, ...) {
-  if (type != 1 & type != 2 & type != 3 & type != 4 & type != 5) {
-    stop("invalid type input: pecify from 1, 2, 3, 4 or 5")
-  }
-  else {
-    #type = 1, plot_factor_scores
-    if (type == 1) {
-      plot_factor_scores(mymfa = mfa, d1 = d1, d2 = d2)
-    }
-    #type = 2, plot_pfs_vl
-    else if (type ==2 ) {
-      plot_pfs_vl(mymfa = mfa, X=X, d1 = d1, d2 = d2, loading_labels = loading_labels)
-    }  
-    #type = 4, plot_pfs
-    else if (type ==4 ) {
-      plot_pfs(mymfa = mfa, X=X, d1 = d1, d2 = d2)
-    }  
-    #type = 5, plot_vl
-    else if (type ==5 ) {
-      plot_vl(mymfa = mfa, X=X, d1 = d1, d2 = d2, loading_labels = loading_labels)
-    }  
-    #type = 3, plot_pfs_vl_all
-    else {
-      plot_pfs_vl_all(mymfa=mfa, d1 = d1, d2 = d2, loading_labels = loading_labels)
-    }
-  }
-}
-
