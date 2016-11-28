@@ -13,7 +13,7 @@
 #' tables <- data_tables(wines, sets, TRUE, scaling_vec)
 #' mymfa1 <- mfa(wines, sets, ncomps = 2, center = TRUE, scale = scaling_vec)
 #' 
-#' sets <- lapply(sets, FUN=function(vec){vec-1})
+#' 
 #' contrib_table1 <- contrib_tables(mymfa1, sets, tables)
 
 
