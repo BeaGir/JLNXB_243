@@ -1,0 +1,203 @@
+Added check functions, made function able to accept numeric vector for center and character vector for sets
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+MFA Function
+```{r}
+#helper function for function that separates data into tables and preprocesses
+shift_sets <- function(sets) {
+  data_start_col <- min(unlist(sets))
+  shift <- data_start_col - 1
+  new_sets <- lapply(sets, function(x) x - shift)
+  return(new_sets)
+}
+
+#convert column names to column numbers
+sets_numeric <- function(data, sets) {
+  col_numbers <- lapply(sets, function(x) {match(x, colnames(data))})
+  if(TRUE %in% is.na(col_numbers)) {
+    stop("\n'sets' contains column name that is not in the data")
+  }
+  return(col_numbers)
+}
+
+#separate data into individual tables, preprocess and store in a list
+data_tables <- function(data, sets, center, scale) {
+  #test inputs
+  test_data(data)
+  test_sets_all(data, sets)
+  if(FALSE %in% lapply(sets, is.numeric)) {
+    sets <- sets_numeric(data, sets)
+  }
+  test_sets_numeric(data, sets)
+  test_center_scale(center, sets)
+  test_center_scale(scale, sets)
+  
+  new_sets <- shift_sets(sets)
+  raw_tables <- lapply(sets, function(x) {subset(data, select = x)})
+  if(is.logical(scale) && is.logical(center)) {
+    tables <- lapply(raw_tables, function(x) {scale(x, center = center, scale = scale)})  
+    } else {
+      if(is.logical(center)) {
+        index <- 1:length(new_sets)
+        tables <- mapply(function(x, i) {scale(x, center = center, scale = scale[new_sets[[i]]])}, raw_tables, index)
+      } else {
+          if(is.logical(scale)) {
+            index <- 1:length(new_sets)
+            tables <- mapply(function(x, i) {scale(x, center = center[new_sets[[i]]], scale = scale)}, raw_tables, index)
+          } else {
+            index <- 1:length(new_sets)
+            tables <- mapply(function(x, i) {scale(x, center = center[new_sets[[i]]], scale = scale[new_sets[[i]]])}, raw_tables, index)
+          }
+      }
+    }
+  return(tables)
+}
+
+#determine the weights for each individual table
+weights <- function(list) {
+  test_tables(list)
+  #create a nested list with the svd matrices for each data table
+  svd_list <- lapply(list, svd)
+  #create vector of weights
+  wghts <- unlist(lapply(svd_list, function(x) {1/(x$d[1])^2}))
+  return(wghts)
+}
+
+#create matrix of weightings
+weighting_matrix <- function(weights, sets) {
+  if(length(weights) != length(sets)) {
+    stop("each data table must have a corresponding weight")
+  }
+  y <- lapply(sets, length)
+  z <- 1:length(y)
+  a <- unlist(mapply(function(x, i) {rep(x, y[[i]])}, weights, z))
+  A <- diag(a)
+  return(A)
+}
+
+#MFA as simple PCA
+pca_func <- function(list, sets, ncomps) {
+  #input is list of data tables
+  new_sets <- shift_sets(sets)
+  wghts <- weights(list)
+  
+  test_ncomp(ncomps, list)
+  
+  A <- weighting_matrix(wghts, sets)
+  #combine data tables into one big matrix
+  x_tilde <- matrix(unlist(list), nrow(list[[1]])) %*% A^(1/2)
+  x_svd <- svd(x_tilde)
+  eigen_values <- (sqrt(1/nrow(list[[1]])) * x_svd$d)^2
+  if(!is.null(ncomps)) {
+    eigen_values <- eigen_values[1:ncomps]
+  }
+
+  #calculate list of partial loadings
+  negative_root_weights <- wghts ^ (-1/2)
+  negative_root_A <- weighting_matrix(negative_root_weights, sets)
+  q <- t(t(x_svd$v) %*% negative_root_A)
+  partial_loadings <- list()
+  for(i in 1:length(sets)) {
+    loading <- t(subset(t(q), select = new_sets[[i]]))
+    if(is.null(ncomps)) {
+      partial_loadings[[i]] <- loading
+    } else {
+      partial_loadings[[i]] <- loading[ ,1:ncomps]
+    }
+  }
+
+  #list of partial factor scores
+  F_partial <- list()
+  for(i in 1:length(list)) {
+    partial_score <- length(list) * wghts[i] * list[[i]] %*% partial_loadings[[i]]
+    if(is.null(ncomps)) {
+      F_partial[[i]] <- partial_score
+    } else {
+      F_partial[[i]] <- partial_score[ ,1:ncomps]
+    }
+    
+  }
+
+  #save results we want in a list (we don't really need all of these but it is useful to have them while we test these functions against the example)
+  out <- list(
+    weightings_matrix = A,
+    simple_pca = x_svd,
+    eigen_values = eigen_values,
+    loadings = q,
+    partial_loadings = partial_loadings,
+    partial_factor_scores = F_partial
+  )
+  class(out) <- "pca"
+  out
+}
+
+#Get the observation names from the dataset
+obs_names <- function(data){
+  n_obs <- nrow(data)
+  v <- vector() 
+  #if the data do not have row names (usually in the 1st column), we create;
+  #if the data has row names(ie.the 1st column are characters),get it.
+  if(is.numeric(data[,1])==TRUE){
+    for (i in 1:n_obs){
+      v <- c(v, paste("obs",i,sep = ""))
+    }
+  }else{
+    v <- data[,1]
+  }
+  return(v)
+}
+
+#constructor function
+make_mfa <- function(data, pca, ncomps) {
+  test_pca(pca)
+  if(is.null(ncomps)) {
+    ncomps <- ncol(pca$loadings)
+  }
+  res <- list(
+    eigen_values = pca$eigen_values, #vector
+    singular_values = sqrt((pca$eigen_values)),
+    common_factor_scores = (pca$simple_pca$u %*% diag(pca$simple_pca$d))[ ,1:ncomps], #matrix
+    partial_factor_scores = pca$partial_factor_scores, #list
+    loadings = pca$loadings[ ,1:ncomps],
+    partial_loadings = pca$partial_loadings, #list
+    observation_names = obs_names(data) #vector
+  )
+  class(res) <- "mfa"
+  res
+}
+
+mfa <- function(data, sets, ncomps = NULL, center = TRUE, scale = TRUE) {
+  #data can be matrix or data frame
+  #sets is a list of vectors indicating sets/blocks of variables, can be character vectors with names or numeric vectors with position of variables in the data table
+  #ncomps is an integer indicating how many components/factors are to be extracted, NULL indicates all components
+  #center can be logical value or numeric vector of length equal to number of active variables; if numeric vector, each variable has corresponding value subtracted from it; if TRUE, subtract column means
+  #scale can be logical value or numeric vector of length equal to number of active variables
+  #return vector of eigenvalues, matrix of common factor scores, matrix of partial factor scores, matrix of loadings
+  #Also, return the observation names of the dataset (need in plotting)
+  tables <- data_tables(data, sets, center, scale)
+  pca <- pca_func(tables, sets, ncomps)
+  make_mfa(data, pca, ncomps)
+}
+```
+
+Test code
+```{r}
+wines <- read.csv("https://raw.githubusercontent.com/ucb-stat243/stat243-fall-2016/master/problem-sets/final-project/data/wines.csv", stringsAsFactors = FALSE)
+sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
+
+scaling_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
+tables <- data_tables(wines, sets, TRUE, scaling_vec)
+round(tables[[1]], 2) #compare this output to (54) in the paper
+wghts <- weights(tables)
+wghts #compare to (61) in the paper
+results <- pca_func(tables, sets, ncomps = 2)
+round(results$eigen_values, 3) #compare to table 2 in the paper
+round(results$partial_factor_scores[[1]], 3) #compare first 2 columns to (66) in the paper
+
+mymfa <- mfa(wines, sets, ncomps = 2, T, scaling_vec)
+mymfa2 <- mfa(wines, sets, center = TRUE, scale = scaling_vec)
+```
+
