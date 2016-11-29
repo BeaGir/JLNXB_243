@@ -8,7 +8,6 @@
 #
 
 library(shiny)
-library(ggplot2)
 source('plot.mfa.R')
 source('final_project_mainfunc_v11.R')
 
@@ -85,7 +84,9 @@ server <- shinyServer(function(input, output) {
     if (input$type == 6){
       mymfa2 <- mfa(wines, sets, ncomps = input$ncomps, T, scaling_vec)
       par(mfrow = c(5,2))
-      plot(mymfa2$eigen_values)
+      barplot(mymfa2$eigen_values, main = "Eigenvalues in Descending Order",
+              xlab = "Eigenvalue", col = "blue", cex.main = 3, cex.lab = 2,
+              ylim = c(0,max(mymfa2$eigen_values)+0.1), names.arg = seq(1:input$ncomps))
     }
     if(input$type == 2){
       par(mfrow = c(5,2))
