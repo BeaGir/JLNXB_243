@@ -1,3 +1,4 @@
+
 #
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
@@ -55,13 +56,13 @@ ui <- shinyUI(fluidPage(
         tags$style(type="text/css", ".well { max-width: 280px; }")
       ),
       selectInput("type",
-                   label = "Type of Plot:",
-                   choices = list("Common Factor Scores" = 1,
-                                  "Biplot of Partial Factor Scores & Partial Loadings"= 2,
-                                  "All 10 Biplots" = 3,
-                                  "Partial Factor Scores" = 4,
-                                  "Partial Loadings" = 5,
-                                  "Eigenvalues" = 6), selected = 1),
+                  label = "Type of Plot:",
+                  choices = list("Common Factor Scores" = 1,
+                                 "Biplot of Partial Factor Scores & Partial Loadings"= 2,
+                                 "All 10 Biplots" = 3,
+                                 "Partial Factor Scores" = 4,
+                                 "Partial Loadings" = 5,
+                                 "Eigenvalues" = 6), selected = 1),
       sliderInput("ncomps",
                   label = "Number of Components", min = 1, max = 10, step =1 , value =10),
       sliderInput("X",
@@ -97,25 +98,35 @@ server <- shinyServer(function(input, output) {
       plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_label_list[[input$X]])
     }
     if(input$type == 1 | input$type == 4){
-    # generate a plot
+      # generate a plot
       par(mfrow = c(5,2))
-    plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels)
-    #things to fix:
-    #4- make eigenvalue plot nice
+      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels)
+      #things to fix:
+      #4- make eigenvalue plot nice
     }
     if(input$type == 3){
 
       par(mfrow = c(5,2))
       plot(mymfa, type = 2, X = 1, d1 = 1, d2 = 2, loading_labels = loading_labels[,1])
+      title(sub = "Accessor 1", cex.sub = 2)
       plot(mymfa, type = 2, X = 2, d1 = 1, d2 = 2, loading_labels = loading_labels[,2])
+      title(sub = "Accessor 2", cex.sub = 2)
       plot(mymfa, type = 2, X = 3, d1 = 1, d2 = 2, loading_labels = loading_labels[,3])
+      title(sub = "Accessor 3", cex.sub = 2)
       plot(mymfa, type = 2, X = 4, d1 = 1, d2 = 2, loading_labels = loading_labels[,4])
+      title(sub = "Accessor 4", cex.sub = 2)
       plot(mymfa, type = 2, X = 5, d1 = 1, d2 = 2, loading_labels = loading_labels[,5])
+      title(sub = "Accessor 5", cex.sub = 2)
       plot(mymfa, type = 2, X = 6, d1 = 1, d2 = 2, loading_labels = loading_labels[,6])
+      title(sub = "Accessor 6", cex.sub = 2)
       plot(mymfa, type = 2, X = 7, d1 = 1, d2 = 2, loading_labels = loading_labels[,7])
+      title(sub = "Accessor 7", cex.sub = 2)
       plot(mymfa, type = 2, X = 8, d1 = 1, d2 = 2, loading_labels = loading_labels[,8])
+      title(sub = "Accessor 8", cex.sub = 2)
       plot(mymfa, type = 2, X = 9, d1 = 1, d2 = 2, loading_labels = loading_labels[,9])
+      title(sub = "Accessor 9", cex.sub = 2)
       plot(mymfa, type = 2, X = 10, d1 = 1, d2 = 2, loading_labels = loading_labels[,10])
+      title(sub = "Accessor 10", cex.sub = 2)
 
     }
   }
