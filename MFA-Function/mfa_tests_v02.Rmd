@@ -1,0 +1,123 @@
+
+```{r}
+#test if input is a list of numeric or character vectors
+test_sets_all <- function(data, sets) {
+  if(!is.list(sets)) {
+    stop("\n'sets' must be a list of numeric vectors")
+  }
+  if(length(sets) == 0) {
+    stop("\n'sets' must have at least one entry")
+  }
+  if(length(unlist(sets)) > ncol(data)) {
+    stop("number of columns in 'sets' cannot exceed total columns in data set")
+  }
+  if(length(unique(lapply(sets, is.numeric))) != 1 | length(unique(lapply(sets, is.character))) != 1) {
+    stop("\n'sets' must be a list containing only numeric vectors or only character vectors")
+  }
+  if(length(unique(lapply(sets, is.vector))) != 1) {
+    stop("\n'sets' must be a list of vectors")
+  }
+  TRUE
+}
+
+#test sets if it is a list of numeric vectors
+test_sets_numeric <- function(data, sets) {
+  if(sum(sapply(unlist(sets), function(x) {round(x) - x})) != 0) {
+    stop("\n'sets' can only contain integer values")
+  }
+  if(min(unlist(sets)) < 1) {
+    stop("\n'sets' can only contain numbers greater than 0")
+  }
+  if(max(unlist(sets)) > ncol(data)) {
+    stop("number of columns in 'sets' cannot exceed total columns in data set")
+  }
+  TRUE
+}
+```
+
+```{r}
+#test that data is a matrix or data frame
+test_data <- function(data) {
+  if(!is.matrix(data) && !is.data.frame(data)) {
+    stop("data must be in the form of a matrix or data frame")
+  }
+  TRUE
+}
+```
+
+```{r}
+#check center and scale are logical values or numeric vectors
+test_center_scale <- function(arg, sets) {
+  if(!is.logical(arg) && length(arg) != length(unlist(sets))) {
+    stop("\n'center' and 'scale' must each be a logical value or a numeric vector whose length is the number of active variables")
+  }
+  if(!is.logical(arg) && !is.numeric(arg)) {
+    stop("\n'center' and 'scale' must each be a logical value or a numeric vector")
+  }
+  TRUE
+}
+```
+
+```{r}
+#test list of data tables
+test_tables <- function(list) {
+  if(!is.list(list)) {
+    stop("argument should be a list")
+  }
+  if(!is.na(match(FALSE, lapply(list, is.matrix)))) {
+    stop("All elements of list should be a matrix")
+  }
+  if(length(unique(lapply(list, nrow))) != 1) {
+    stop("All matrices in the list should have the same number of rows")
+  }
+  TRUE
+}
+```
+
+```{r}
+#check number of components
+test_ncomp <- function(ncomps, list) {
+  if(!is.null(ncomps) && !is.numeric(ncomps)) {
+    stop("\n'ncomps' must be 'NULL' or a numeric value")
+  }
+  if(is.numeric(ncomps) && round(ncomps) != ncomps) {
+    stop("\n'ncomps' must be an integer")
+  }
+  if(is.numeric(ncomps) && ncomps < 1) {
+    stop("\n'ncomps' must be positive")
+  }
+  if(is.numeric(ncomps) && ncomps > nrow(list[[1]])) {
+    stop("\n'ncomps' cannot exceed number of observations")
+  }
+  TRUE
+}
+```
+
+```{r}
+#check pca input
+test_pca <- function(pca) {
+  if(class(pca) != "pca") {
+    stop("input should be object of class 'pca'")
+  }
+  if(is.null(pca$eigen_values)) {
+    stop("object is missing eigenvalues")
+  }
+  if(is.null(pca$simple_pca)) {
+    stop("object is missing simple PCA of transformed data")
+  }
+  if(is.null(pca$simple_pca$u) | is.null(pca$simple_pca$d) | is.null(pca$simple_pca$v)) {
+    stop("\n'simple_pca' should contain results of singular value decomposition")
+  }
+  if(is.null(pca$partial_factor_scores)) {
+    stop("object is missing partial factor scores")
+  }
+  if(is.null(pca$loadings)) {
+    stop("object is missing loadings matrix")
+  }
+  if(is.null(pca$partial_loadings)) {
+    stop("object is missing partial loadings")
+  }
+  TRUE
+}
+```
+
