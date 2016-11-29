@@ -78,7 +78,7 @@ ui <- shinyUI(fluidPage(
   )
 ))
 
-# Define server logic required to draw a histogram
+# Define server logic required to draw plots
 server <- shinyServer(function(input, output) {
 
   output$distPlot <- renderPlot({
@@ -92,20 +92,23 @@ server <- shinyServer(function(input, output) {
     if(input$type == 2){
       par(mfrow = c(5,2))
       plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels[,input$X])
+      title(sub = paste("Accessor",input$X), cex.sub = 2)
     }
     if(input$type == 5){
       par(mfrow = c(5,2))
       plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_label_list[[input$X]])
+      title(sub = paste("Accessor",input$X), cex.sub = 2)
     }
-    if(input$type == 1 | input$type == 4){
-      # generate a plot
+    if(input$type == 1){
       par(mfrow = c(5,2))
       plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels)
-      #things to fix:
-      #4- make eigenvalue plot nice
+    }
+    if(input$type == 4){
+      par(mfrow = c(5,2))
+      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels)
+      title(sub = paste("Accessor",input$X), cex.sub = 2)
     }
     if(input$type == 3){
-
       par(mfrow = c(5,2))
       plot(mymfa, type = 2, X = 1, d1 = 1, d2 = 2, loading_labels = loading_labels[,1])
       title(sub = "Accessor 1", cex.sub = 2)
@@ -127,7 +130,6 @@ server <- shinyServer(function(input, output) {
       title(sub = "Accessor 9", cex.sub = 2)
       plot(mymfa, type = 2, X = 10, d1 = 1, d2 = 2, loading_labels = loading_labels[,10])
       title(sub = "Accessor 10", cex.sub = 2)
-
     }
   }
   , height = 2700, width = 900
