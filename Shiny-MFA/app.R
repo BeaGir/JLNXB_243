@@ -11,6 +11,7 @@
 library(shiny)
 library(MFA)
 
+
 wines <- read.csv("wines.csv", stringsAsFactors = FALSE)
 sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
 scaling_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
@@ -42,10 +43,10 @@ loading_label_list <- list(loading_label1, loading_label2, loading_label3, loadi
 
 # Define UI for application
 ui <- shinyUI(fluidPage(
-  
+
   # Application title
   titlePanel("Multiple Factor Analysis for the Wine Data"),
-  
+
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
@@ -67,15 +68,16 @@ ui <- shinyUI(fluidPage(
                   min = 1,
                   max = 5,
                   value = 3),
+      h6("For partial factor scores, loadings, and biplot:"),
       sliderInput("X",
                   label = "Accessor ID", min = 1, max = 10, step = 1, value = 1),
-      h6("For Eigenvalue plot only:"),
+      h6("For eigenvalue plot only:"),
       sliderInput("ncomps",
                   label = "Number of Components", min = 1, max = 10, step =1 , value =10)
     ),
-    
-    
-    
+
+
+
     # Show a plot of the generated distribution
     mainPanel(
       plotOutput("distPlot")
@@ -85,7 +87,7 @@ ui <- shinyUI(fluidPage(
 
 # Define server logic required to draw plots
 server <- shinyServer(function(input, output) {
-  
+
   output$distPlot <- renderPlot({
     if (input$type == 6){
       mymfa2 <- mfa(wines, sets, ncomps = input$ncomps, T, scaling_vec)
