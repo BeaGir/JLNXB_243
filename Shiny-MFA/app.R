@@ -63,7 +63,7 @@ ui <- shinyUI(fluidPage(
                                  "Partial Loadings" = 5,
                                  "Eigenvalues" = 6), selected = 2),
       sliderInput("cex",
-                  "size of text and points",
+                  "Size of Text and Points",
                   min = 1,
                   max = 5,
                   value = 3),
