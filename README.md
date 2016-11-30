@@ -15,9 +15,10 @@ New Folders, following final package structure
 
 
 
-The folder MFA_Package (just uploaded the first version, the only thing left is the unit test for the main function)
+The folder MFA_Package (just uploaded the 2nd version! should be a complete one.)
 
-Tips for installing the MFA package 
+Tips for installing the new version MFA package 
+- remove.package("MFA") 
 - download MFA.zip
 - unzip it
 - open MFA.Rproj in Rstudio
