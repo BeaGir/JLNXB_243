@@ -84,7 +84,7 @@ plot_factor_scores <- function(mymfa, d1 = 1, d2 = 2) {
 #plot for partial factor scores
 plot_pfs <- function (mymfa, X=1, d1 = 1, d2 = 2) {
   if (ncol(mymfa$common_factor_scores) < max(d1, d2)) {
-    stop("invalid dimension input: common factor score does not have enough dimension")
+    stop("invalid dimension input: partial factor score does not have enough dimension")
   }
   else {
     data <- data.frame(mymfa$partial_factor_scores[[X]],objects = mymfa$observation_names, cl = rainbow(nrow(mymfa$common_factor_scores)))
@@ -115,7 +115,7 @@ plot_pfs <- function (mymfa, X=1, d1 = 1, d2 = 2) {
 #plot for variable loadings
 plot_vl <- function (mymfa, X=1, d1 = 1, d2 = 2, loading_labels = NULL) {
   if (ncol(mymfa$common_factor_scores) < max(d1, d2)) {
-    stop("invalid dimension input: common factor score does not have enough dimension")
+    stop("invalid dimension input: variable loading do not have enough dimension")
   }
   else {
 
@@ -168,7 +168,7 @@ plot_vl <- function (mymfa, X=1, d1 = 1, d2 = 2, loading_labels = NULL) {
 #loading_labels: the label that user could input themselves
 plot_pfs_vl <- function (mymfa, X=1, d1 = 1, d2 = 2, loading_labels = NULL) {
   if (ncol(mymfa$common_factor_scores) < max(d1, d2)) {
-    stop("invalid dimension input: common factor score does not have enough dimension")
+    stop("invalid dimension input: factor score  and loadings do not have enough dimension")
   }
   else {
     data <- data.frame(mymfa$partial_factor_scores[[X]],objects = mymfa$observation_names, cl = rainbow(nrow(mymfa$common_factor_scores)))
