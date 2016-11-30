@@ -9,8 +9,7 @@
 #
 
 library(shiny)
-source('plot.mfa.R')
-source('final_project_mainfunc_v11.R')
+library(MFA)
 
 wines <- read.csv("wines.csv", stringsAsFactors = FALSE)
 sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
