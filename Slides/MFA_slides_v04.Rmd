@@ -172,7 +172,7 @@ $$ L_{g(k,k')} = trace[(X_kX_k^T) x(X_{k'}X_{k'}^T)] x (\alpha_k x \alpha_{k'}) 
 
 where $\alpha_k$ is the inverse of the largest singular value squared of $X_k$.
 
-The function `Lg` takes computes the Lg coefficient between two tables. It takes as inputs two tables or matrices, and outputs a scalar.
+The function `Lg` computes the Lg coefficient between two tables. It takes as inputs two tables or matrices, and outputs a scalar.
 
 
 ```{r, echo = FALSE}
