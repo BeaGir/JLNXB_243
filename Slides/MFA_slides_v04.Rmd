@@ -161,4 +161,47 @@ mymfa$common_factor_scores
 
 - Rv coefficients
 
+## Example using the "MFA" Package
+
+Lg Coefficient
+========================================================
+
+The LG coefficient between two tables is defined as:
+
+$$ L_{g(k,k')} = trace[(X_kX_k^T) x(X_{k'}X_{k'}^T)] x (\alpha_k x \alpha_{k'}) $$
+
+where $\alpha_k$ is the inverse of the largest singular value squared of $X_k$.
+
+The function `Lg` takes computes the Lg coefficient between two tables. It takes as inputs two tables or matrices, and outputs a scalar.
+
+
+```{r, echo = FALSE}
+library(MFA)
+wines <- read.csv("https://raw.githubusercontent.com/ucb-stat243/stat243-fall-2016/master/problem-sets/final-project/data/wines.csv", stringsAsFactors = FALSE)
+
+#According to the dataset, creating a list of vectors indicating the sets of variables
+sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
+
+#The scaling vector
+scaling_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
+
+#create the mfa object
+mymfa <- mfa(wines, sets, ncomps = 2, T, scaling_vec)
+tables <- data_tables(wines, sets, TRUE, scaling_vec)
+```
+
+```{r}
+library(MFA)
+Lgtable1_table2 <- Lg(tables[[1]], tables[[2]])
+Lgtable1_table2
+```
+
+The function `Lg_table` computes the matrix of Lg coefficients for various tables. It takes as inputs a dataset, and a list of indices indicating which tables from the dataset to compute the Lg coefficients for.
+```{r}
+sets_shift2 <- list(1:6,7:12,13:18,24:29,39:44)
+dataset2 <- as.data.frame(tables)
+Lg_dataset <- Lg_table(dataset2, sets_shift2)
+Lg_dataset
+```
+
 etc.
