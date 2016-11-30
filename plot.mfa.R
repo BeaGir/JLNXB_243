@@ -6,6 +6,7 @@
 #' @param d2 indicating the y-axis
 #' @param X indicating the target table to produce a plot
 #' @param loading_labels the labels for partial loadings
+#' @param cex parameter for controlling the size of title, lengends, labels, and points
 #' @param \dots arguments to be passed to/from other methods
 #' @examples
 #'
