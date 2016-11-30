@@ -63,6 +63,11 @@ ui <- shinyUI(fluidPage(
                                  "Partial Factor Scores" = 4,
                                  "Partial Loadings" = 5,
                                  "Eigenvalues" = 6), selected = 2),
+      sliderInput("cex",
+                  "size of text and points",
+                  min = 1,
+                  max = 5,
+                  value = 3),
       sliderInput("X",
                   label = "Accessor ID", min = 1, max = 10, step = 1, value = 1),
       h6("For Eigenvalue plot only:"),
@@ -87,50 +92,50 @@ server <- shinyServer(function(input, output) {
       mymfa2 <- mfa(wines, sets, ncomps = input$ncomps, T, scaling_vec)
       par(mfrow = c(5,2))
       barplot(mymfa2$eigen_values, main = "Eigenvalues in Descending Order",
-              xlab = "Eigenvalue", border=NA, col = "#1e62cecc" , cex.main = 3, cex.lab = 2,
+              xlab = "Eigenvalue", border=NA, col = "#1e62cecc" , cex.main = 1.5*(2+0.3*(input$cex-2)), cex.lab = 2+0.3*(input$cex-2),
               ylim = c(0,max(mymfa2$eigen_values)+0.1), names.arg = seq(1:input$ncomps))
     }
     if(input$type == 2){
       par(mfrow = c(5,2))
-      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels[,input$X])
+      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels[,input$X], cex = 2+0.3*(input$cex-2))
       title(sub = paste("Accessor",input$X), cex.sub = 2)
     }
     if(input$type == 5){
       par(mfrow = c(5,2))
-      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_label_list[[input$X]])
+      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_label_list[[input$X]], cex = 2+0.3*(input$cex-2))
       title(sub = paste("Accessor",input$X), cex.sub = 2)
     }
     if(input$type == 1){
       par(mfrow = c(5,2))
-      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels)
+      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels, cex = 2+0.3*(input$cex-2))
     }
     if(input$type == 4){
       par(mfrow = c(5,2))
-      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels)
+      plot(mymfa, type = input$type, X = input$X, d1 = 1, d2 = 2, loading_labels = loading_labels, cex = 2+0.3*(input$cex-2))
       title(sub = paste("Accessor",input$X), cex.sub = 2)
     }
     if(input$type == 3){
       par(mfrow = c(5,2))
-      plot(mymfa, type = 2, X = 1, d1 = 1, d2 = 2, loading_labels = loading_labels[,1])
-      title(sub = "Accessor 1", cex.sub = 2)
-      plot(mymfa, type = 2, X = 2, d1 = 1, d2 = 2, loading_labels = loading_labels[,2])
-      title(sub = "Accessor 2", cex.sub = 2)
-      plot(mymfa, type = 2, X = 3, d1 = 1, d2 = 2, loading_labels = loading_labels[,3])
-      title(sub = "Accessor 3", cex.sub = 2)
-      plot(mymfa, type = 2, X = 4, d1 = 1, d2 = 2, loading_labels = loading_labels[,4])
-      title(sub = "Accessor 4", cex.sub = 2)
-      plot(mymfa, type = 2, X = 5, d1 = 1, d2 = 2, loading_labels = loading_labels[,5])
-      title(sub = "Accessor 5", cex.sub = 2)
-      plot(mymfa, type = 2, X = 6, d1 = 1, d2 = 2, loading_labels = loading_labels[,6])
-      title(sub = "Accessor 6", cex.sub = 2)
-      plot(mymfa, type = 2, X = 7, d1 = 1, d2 = 2, loading_labels = loading_labels[,7])
-      title(sub = "Accessor 7", cex.sub = 2)
-      plot(mymfa, type = 2, X = 8, d1 = 1, d2 = 2, loading_labels = loading_labels[,8])
-      title(sub = "Accessor 8", cex.sub = 2)
-      plot(mymfa, type = 2, X = 9, d1 = 1, d2 = 2, loading_labels = loading_labels[,9])
-      title(sub = "Accessor 9", cex.sub = 2)
-      plot(mymfa, type = 2, X = 10, d1 = 1, d2 = 2, loading_labels = loading_labels[,10])
-      title(sub = "Accessor 10", cex.sub = 2)
+      plot(mymfa, type = 2, X = 1, d1 = 1, d2 = 2, loading_labels = loading_labels[,1], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 1 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 2, d1 = 1, d2 = 2, loading_labels = loading_labels[,2], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 2 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 3, d1 = 1, d2 = 2, loading_labels = loading_labels[,3], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 3 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 4, d1 = 1, d2 = 2, loading_labels = loading_labels[,4], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 4 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 5, d1 = 1, d2 = 2, loading_labels = loading_labels[,5], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 5 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 6, d1 = 1, d2 = 2, loading_labels = loading_labels[,6], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 6 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 7, d1 = 1, d2 = 2, loading_labels = loading_labels[,7], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 7 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 8, d1 = 1, d2 = 2, loading_labels = loading_labels[,8], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 8 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 9, d1 = 1, d2 = 2, loading_labels = loading_labels[,9], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 9 \n \n \n", cex.sub = 2)
+      plot(mymfa, type = 2, X = 10, d1 = 1, d2 = 2, loading_labels = loading_labels[,10], cex = 2+0.3*(input$cex-2))
+      title(sub = "Accessor 10 \n \n \n", cex.sub = 2)
     }
   }
   , height = 2700, width = 900
