@@ -43,10 +43,10 @@ loading_label_list <- list(loading_label1, loading_label2, loading_label3, loadi
 
 # Define UI for application
 ui <- shinyUI(fluidPage(
-
+  
   # Application title
   titlePanel("Multiple Factor Analysis for the Wine Data"),
-
+  
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
@@ -62,15 +62,16 @@ ui <- shinyUI(fluidPage(
                                  "All 10 Biplots" = 3,
                                  "Partial Factor Scores" = 4,
                                  "Partial Loadings" = 5,
-                                 "Eigenvalues" = 6), selected = 1),
-      sliderInput("ncomps",
-                  label = "Number of Components", min = 1, max = 10, step =1 , value =10),
+                                 "Eigenvalues" = 6), selected = 2),
       sliderInput("X",
-                  label = "Accessor ID", min = 1, max = 10, step = 1, value = 1)
+                  label = "Accessor ID", min = 1, max = 10, step = 1, value = 1),
+      h6("For Eigenvalue plot only:"),
+      sliderInput("ncomps",
+                  label = "Number of Components", min = 1, max = 10, step =1 , value =10)
     ),
-
-
-
+    
+    
+    
     # Show a plot of the generated distribution
     mainPanel(
       plotOutput("distPlot")
@@ -80,13 +81,13 @@ ui <- shinyUI(fluidPage(
 
 # Define server logic required to draw plots
 server <- shinyServer(function(input, output) {
-
+  
   output$distPlot <- renderPlot({
     if (input$type == 6){
       mymfa2 <- mfa(wines, sets, ncomps = input$ncomps, T, scaling_vec)
       par(mfrow = c(5,2))
       barplot(mymfa2$eigen_values, main = "Eigenvalues in Descending Order",
-              xlab = "Eigenvalue", col = "blue", cex.main = 3, cex.lab = 2,
+              xlab = "Eigenvalue", border=NA, col = "#1e62cecc" , cex.main = 3, cex.lab = 2,
               ylim = c(0,max(mymfa2$eigen_values)+0.1), names.arg = seq(1:input$ncomps))
     }
     if(input$type == 2){
