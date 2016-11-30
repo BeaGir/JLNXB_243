@@ -1,0 +1,163 @@
+---
+title: "Getting Started with Multiple Factor Analysis"
+author: "Ningning Long, Beatrice Girard, Jordan Prosky, Laura Katz, Xiaoqi Zhang"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with Multiple Factor Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+library(MFA)
+```
+
+## MFA
+
+The package `"MFA"` is an implementation for handling multiple data tables given a specific dataset. The main mfa function will create a mfa object according to the dataset, which including information of eigenvalues, singular values, common factor scores, partial factor scores, loadings and partial loadings. Then, after getting the mfa object, there are several related functions and methods that can allow the users to get eigenvalues summary, contributions, Rv coefficient, Lg Coefficient, stability estimation from bootstrap. Also, there is a plot method created for mfa to visualize the compromise of tables, partial factor scores and variable loadings.
+
+
+
+## The Dataset
+
+In order to give a tutorial of the MFA package, we choose to use the wine tasting experiment dataset.The raw data is available in the file wines.csv inside the final-project/data/ folder: https://github.com/ucb-stat243/stat243-fall-2016/tree/master/problem-sets/final-project 
+
+
+
+## Creating a mfa object
+
+The first step is to create a `"mfa"` object with the function `mfa()`:
+```{r}
+#get the dataset
+wines <- read.csv("https://raw.githubusercontent.com/ucb-stat243/stat243-fall-2016/master/problem-sets/final-project/data/wines.csv", stringsAsFactors = FALSE)
+
+#According to the dataset, creating a list of vectors indicating the sets of variables
+sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
+
+#The scaling vector
+scaling_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
+
+#create the mfa object 
+mymfa <- mfa(wines, sets, ncomps = 2, T, scaling_vec)
+
+mymfa
+
+```
+
+Here, `mfa()` creates a mfa object of wines dataset, with specific sets and scaling_vect. Also, we choose ncomps=2 just for convinience. 
+
+You can change the `mfa()` arguments `data`, `sets`, `ncomps`, `center` and `scale`. Please see more descriptions about the arguments in the documentation of `mfa()`.
+
+
+
+
+## Summary of eigenvalues
+
+Once we get the mfa object from the `mfa()` function, we can use it to get the summarizing information about the obtained eigenvalues. The `eigensummary()` method for mfa objects can give a table with singular values, eigenvalues, cumulative, percentage of intertia, cumulative percentage of inertia, for all the extracted components (in this case, our extracted components are the first two components).
+```{r}
+eigensummary(mymfa)
+```
+
+
+
+## Contributions
+
+The contributions are a series of descriptive statistics that help us interpret how 1) the observations, 2) the variables, and 3) the tables, contribute to the variability of the extracted dimensions. Once we have the mfa object, we can call the following functions to get contributions: `contrib_obs()`, `contrib_var()`,and `contrib_tables()`
+```{r}
+#Contribution of an observation to a dimension
+contrib_obs1 <- contrib_obs(mymfa)
+contrib_obs1
+
+
+#Contribution of a variable to a dimension
+#use data_tables() function to separate data into individual tables (see the documentation of data_tables() for more information)
+tables <- data_tables(wines, sets, TRUE, scaling_vec)
+#shift the sets vector
+sets_new <- lapply(sets, FUN=function(vec){vec-1})
+contrib_var1 <- contrib_var(mymfa, sets_new, tables)
+contrib_var1
+
+
+#Contribution of a table to a dimension
+contrib_table1 <- contrib_tables(mymfa, sets_new, tables)
+contrib_table1
+
+```
+
+
+
+
+## Coefficients to Study the Between-Table Structure
+
+To evaluate the similarity between two tables we use the RV coefficient. The `RV()` function computes this coefficient for two tables. The `RV_table()` function takes a data set, and a list with sets of variables, and which returns a matrix of RV coefficients.
+```{r}
+#Rv coefficient for two tables
+RVtable1_table2 <- RV(tables[[1]], tables[[2]])
+RVtable1_table2
+
+#sets of variables
+sets_shift1 <- list(1:6, 7:12, 13:18)
+#a dataset that comprises three sets or blocks
+dataset1 <- data.frame(cbind(tables[[1]], tables[[2]], tables[[3]]))
+# get a matrix of RV coefficients between each pair of tables
+RV_dataset <- RV_table(dataset1, sets_shift1)
+RV_dataset
+```
+
+
+
+## Lg Coefficient
+
+Similarly, we can also use Lg coefficient in the context of MFA to evaluate the similarity between two tables. The `Lg()` function computes this coefficient for two tables. The `Lg_table()` function takes a data set, and a list with sets of variables, and which returns a matrix of Lg coefficients.
+```{r}
+#Lg coefficient between two tables
+Lgtable1_table2 <- Lg(tables[[1]], tables[[2]])
+Lgtable1_table2
+
+#The Lg coefficient matrix between the tables defined by the sets
+sets_shift2 <- list(1:6,7:12,13:18,24:29,39:44)
+dataset2 <- as.data.frame(tables)
+Lg_dataset <- Lg_table(dataset2, sets_shift2)
+Lg_dataset
+```
+
+
+
+## Bootstrap
+
+The bootstrap is a method for mfa objects. The method allows the user to perform bootstrapping in order to estimate the stability of the compromise factor scores. The method takes two inputs (a mfa object and the number of times of bootstrap) and returns a list, containing the mean, standard deviation and bootstrap ratio; Also, it creates plot of bootstrap ratio for each dimension.
+```{r}
+#do boostrap 1000 times with a mfa object
+bootstrap(mymfa, 1000)
+```
+
+
+
+## Plot Method
+
+We can use the plot method of mfa object to visualize the compromise of tables, partial factor scores, and variable loadings for a given two dimensions
+```{r,fig.show='hold'}
+##plot for factor scores
+plot(mymfa, type = 1)
+
+#plot for partial factor scores and variable loadings with given loading_labels for the first assessor
+plot(mymfa, type = 2, X = 1, loading_labels = c("Cat Pee", "Passion Fruit", "Green Pepper", "Mineral", "Smoky", "Citrus"))
+
+#printing all 10 plots for partial factor scores and variable loadings for the ten assessors without given loading_labels
+plot(mymfa, type = 3, loading_labels = NULL)
+
+#plot for partial factor scores  for the first assessor
+plot(mymfa, type = 4, X = 1) 
+
+#plot for variable loadings for the first assessor
+plot(mymfa, type = 5, X = 1) 
+```
+
+
+```{r setup, include=FALSE}
+#remove the things in the environment
+rm(list = ls())
+```
+

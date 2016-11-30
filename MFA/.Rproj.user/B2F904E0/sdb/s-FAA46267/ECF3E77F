@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\n# =====================================================\n# Using devtools\n# =====================================================\n\nlibrary(devtools)\n\n\ndevtools::document()\ndevtools::check_man()\ndevtools::test()\ndevtools::build_vignettes()\ndevtools::build()\ndevtools::install()\n",
+    "created" : 1480546658649.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "2670257788",
+    "id" : "ECF3E77F",
+    "lastKnownWriteTime" : 1480208744,
+    "last_content_update" : 1480208744,
+    "path" : "~/stat243/final-project/MFA/devtools-mfa.R",
+    "project_path" : "devtools-mfa.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

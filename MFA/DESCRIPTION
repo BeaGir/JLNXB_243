@@ -1,0 +1,25 @@
+Package: MFA
+Type: Package
+Title: Multiple Factor Analysis(MFA)
+Version: 0.1.0
+Authors@R: c(person("Beatrice", "Girard", email = "beatrice.girard@berkeley.edu", role = "aut"),
+             person("Jordan", "Prosky", email = "jorpro@berkeley.edu", role = "aut"),
+             person("Laura", "Katz", email = "laura_katz@berkeley.edu", role = "aut"),
+             person("Ningning", "Long", email = "ningninglong@berkeley.edu", role = c("aut", "cre")),
+             person("Xiaoqi", "Zhang", email = "xiaoqi_zhang@berkeley.edu", role = "aut"))
+Description: The package creates a MFA object, and contains related methods and functions
+License: BSD
+LazyData: TRUE
+Collate:
+   mfa.R
+   mfa_print_method.R
+   mfa_plot_method.R
+   mfa_eigenvalue_summary.R
+   bootstrap.R
+   contributions.R
+   rv.R
+   Lg.R
+RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
