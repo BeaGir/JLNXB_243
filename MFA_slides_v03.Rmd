@@ -1,0 +1,146 @@
+---
+title: "MFA_slides"
+author: "Laura Katz"
+date: "11/30/2016"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Multiple Factor Analysis in R Using "MFA" Package
+
+This presentation will give a brief overview of how and when to use Multiple Factor Analysis. We will also demonstrate how to do Multiple Factor Analysis using the "MFA" package in R, using a fictitious example.
+
+## What is Multiple Factor Analysis, and when should you use it?
+
+- Multiple Factor Analysis (MFA) is used to analyze different sets of data taken on the same observations.
+- Bullet 2
+- Bullet 3
+
+## Output of MFA
+
+- Common and partial factor scores
+- Loadings
+
+## Overview of the Steps of MFA
+
+- There are multiple ways to perform MFA on a given data set (i.e. using generalized singular value decomposition, simple singular value decomposition on a transformed data set, cross-product matrices, or the factor scores from a single data table).
+- The "MFA" package in R uses a simple singular value decomposition on a transformed data set, so that is the method we will walk through in this presentation. For others, see [paper].
+
+## Overview of the Steps of MFA
+
+- To perform MFA, you start with a set of k data tables each containing different sets of variables but all measured on the same observations, {x_1, ..., x_K}.
+- The first step is to calculate the "weight" of each of these data tables. To do this, you perform a standard PCA on each table to get the first singular value, gamma. For a given table you can calculate the weight:
+
+      alpha_i = 1 / (gamma_i)^2
+
+- We do this step for each of the k tables, storing the weights in the vector
+
+      alpha = [alpha_1, ..., alpha_K]
+      
+  or alternatively in the matrix, A, which is a JxJ diagonal matrix, where J is the total number of active variables. The number of times each weight is repeated along the diagonal of A is the number of active variables measured in the corresponding data table. (i.e. If the first table contains 6 variables, the first 6 entries along the diagonal of A will be alpha_1.)
+  
+## Overview of the Steps of MFA
+
+- As previously mentioned, the "MFA" package in R first transforms the original data and then performs a simple PCA. We use the weights to transform the data in the following way:
+
+    X_tilde = [sqrt(alpha_1)*x_1 | sqrt(alpha_2*x_2) | ... | sqrt(alpha_k*x_K)]
+
+- X_tilde is the concatenation of each data table multiplied by the square root of its weight, and this will serve as our transformed data set on which we perform a simple PCA.
+
+## Overview of the Steps of MFA
+
+- On our transformed data set, we do a standard singular value decomposition, which gives the result
+
+X_tilde = U_tilde * Delta_tilde * V_tilde_T
+
+- From this, we can calculate the factor scores as well as the loadings.
+
+## Factor Scores
+
+- To calculate the factor scores for the observations, we can do the calculation
+
+F = U_tilde * Delta_tilde
+
+## Loadings
+
+- We can also calculate the loadings from the SVD of X_tilde in the following way:
+
+Q = V_tilde * A^(-1/2)
+
+where A is the matrix of the weights.
+
+## Partial Factor Scores
+
+- To obtain the partial factor scores for a given factor i, we can do the calculation
+
+F_i = K * alpha_i * x_i * Q_i
+
+where K is the total number of factors in the analysis, x_i is the original data table, and Q_i is the matrix of partial loadings for that factor. We can get the partial loadings from the complete loadings table.
+
+Q = [Q_1_T | ... | Q_K_T]^T
+
+## "MFA" Package in R
+
+- The "MFA" package in R performs this analysis using the mfa function. It can be called in the following way:
+
+> mymfa <- mfa(data, sets, ncomps = NULL, center = TRUE, scale = TRUE)
+
+- The object "mymfa" contains the eigenvalues for the original data set, the common and partial factor scores, and the loadings matrix.
+
+## Inputs to the "MFA" Package
+
+- "data" can be a data frame or a matrix
+- "sets" is a list of vectors of length equal to the number of data tables. Each vector corresponds to a data table and contains the columns from the original data set that belong in that table. The vectors can either be numeric (column indices) or characters (column names)
+- "ncomps"" is an integer or NULL value, specifying the number of components you want in the output of the MFA.
+- "center" is either a logical value or a vector of length equal to the total number of active variables, specifying the value around which each column will be centered. If "center" is TRUE, each column will be centered around its mean. If "center" is FALSE, no centering will be done.
+- "scale" is either a logical value or a vector of length equal to the total number of active variables, specifying the value by which each column will be scaled. If "scale" is TRUE, each column is scaled by its standard deviation. If "scale" is FALSE, no scaling will be done.
+
+## Example using the "MFA" Package
+
+- We will now walk through an example of how to use the "MFA" package using a fictitious data set.
+- The data contains the evaluation of 12 different wines by 10 expert assessors. Each assessor measured the wine on 4 criteria--cat-pee, passionfruit, green pepper and mineral--as well as any other criteria they desired. The raw data looks like this:
+
+```{r}
+wines <- read.csv("https://raw.githubusercontent.com/ucb-stat243/stat243-fall-2016/master/problem-sets/final-project/data/wines.csv", stringsAsFactors = FALSE)
+wines
+```
+
+## Example using the "MFA" Package
+
+- We can use the mfa function in the "MFA" package to analyze the data set "wines". When you print the object "mymfa", you see a summary of the results of the analysis.
+
+```{r}
+sets <- list(2:7. 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
+scaing_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
+
+mymfa <- mfa(wines, sets, ncomps = 2, center = TRUE, scale = scaling_vec)
+mymfa
+```
+
+## Example using the "MFA" Package
+
+- You can also call specific elements of the MFA output in the following way:
+
+```{r}
+mymfa$common_factor_scores
+```
+
+- Other elements that can be called in this way are
+  - mymfa$eigen_values, stored is a vector
+  - mymfa$partial_factor_scores, stored in a list of matrices
+  - mymfa$loadings, stored in a matrix
+
+## Example using the "MFA" Package
+
+- plotting
+
+## Example using the "MFA" Package
+
+- summary of eigenvalues
+
+## Example using the "MFA" Package
+
+- Rv coefficients
