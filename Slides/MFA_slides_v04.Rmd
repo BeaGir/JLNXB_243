@@ -182,9 +182,66 @@ Sample plots:
 
 - summary of eigenvalues
 
-## Example using the "MFA" Package
+## Contributions of an Observation to a Dimension
 
-- Rv coefficients
+```{r, eval = FALSE}
+contrib_obs(mymfa)
+# mymfa is an object of class 'MFA'
+```
+
+$$ ctr_{i,l} = \frac{(m_{i}\times f_{i,l}^2)}{\lambda_{l}}$$
+
+- i, observation index
+- l, dimension index
+- $m_{i}$, mass of the i-th observation
+- $f_{i,l}$, factor score of the i-th observation for the l-th dimension
+- $\lambda_{l}$, eigenvalue of dimension l
+
+## Contributions of a Variable to a Dimension
+
+```{r, eval = FALSE}
+contrib_var(mymfa, sets, tables)
+# sets is the list of the variables we will study
+# tables are the original tables
+```
+
+$$ ctr_{j,l} = a_{j}\times q_{j,l}^2$$
+
+- j, variable index
+- l, dimension index
+- $a_{j}$, weight for the j-th variable
+- $q_{j,l}$, loading of the j-th variable for the l-th dimension
+
+## Contributions of a Table to a Dimension
+
+```{r, eval = FALSE}
+contrib_tables(mymfa, sets, tables)
+```
+
+$$ ctr_{k,l} = \sum_{j=1}^{J_{k}} ctr_{j,l}$$
+
+- k, table index
+- l, dimension index
+- Sum is over the variables of table k
+- $ctr_{j,l}$, the contribution of variable j to dimension l
+
+## Between-Table Structure
+
+```{r, eval = FALSE}
+RV(table1, table2)
+RV_table(dataset, setsarg = list(1:2, 3:4))
+# dataset is a dataframe with numeric variables
+# setsarg is list of indices defining subsets
+```
+
+
+$$\scriptsize{RV_{k,k'} = \frac{
+Tr((X_{[k]}.X_{[k]}^{T})\times (X_{[k']}.X_{[k']}^{T}))}
+{\sqrt{(Tr((X_{[k]}.X_{[k]}^{T})\times (X_{[k]}.X_{[k]}^{T})) \times Tr((X_{[k]}.X_{[k]}^{T})\times (X_{[k]}.X_{[k]}^{T})))}}}$$
+
+- $X_{[k]}$, first table of data
+- $X_{[k']}$, second table of data
+- Tr, trace operation
 
 ## Example using the "MFA" Package
 
