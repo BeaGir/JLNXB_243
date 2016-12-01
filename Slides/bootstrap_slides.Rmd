@@ -1,0 +1,61 @@
+---
+title: "slides-bootstrap"
+author: "Ningning Long"
+date: "November 30, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##Bootstrap Procedure 
+
+Bootstrap for the factor scores is for estimating the stability of the compromise factor scores.
+
+First, we sample from the table index. If the dataset is combined with k tables, we sample from 1 to k for k times, which becomes our first sample set. Second, we compute the partial factor scores for our sample sets, and we denote it as $F_1,\dots,F_k$, and denote F$_1^*$=$\frac{1}{k}\sum_{i=1}^k F_i$ as the bootstrapped estimate of the factor scores from the first sample.
+
+Repeat step 1 and 2 for large number of times (e.g., L=1000), so we can get F$_1^*$,F$_2^*$,$\dots$,F$_L^*$.
+
+Then we can caculate the mean and variance of bootstrap samples:
+  $$\bar{F}^*= \frac{1}{L}\sum_{l=1}^L F_l^*$$
+  $$\hat{\sigma}_{F^*}^2=\frac{1}{L}(\sum_{l=1}^{L}( F_l^*-\bar{F}^*)\cdot(F_l^*-\bar{F}^*))$$
+
+Finally, we can get the bootstrap ratio by $\frac{\bar{F}^*}{\hat{\sigma}_{F^*}}$. The bootstrap ratio gives information of which observations most reliably contribute to a component.
+
+  
+
+##Bootstrap Method in the MFA Package
+The bootstrap is a method for mfa objects
+
+usage: bootstrap(mfa,value)
+
+inputs: a mfa object and the number of times of bootstrap
+
+outputs: a list, containing the mean, standard deviation and bootstrap ratio; Also, it creates plot of bootstrap ratio for each dimension.
+
+
+          
+##Example of Bootstrap
+```{r}
+#use MFA package
+library(MFA)
+
+#get the dataset
+wines <- read.csv("https://raw.githubusercontent.com/ucb-stat243/stat243-fall-2016/master/problem-sets/final-project/data/wines.csv", stringsAsFactors = FALSE)
+
+#According to the dataset, creating a list of vectors indicating the sets of variables
+sets <- list(2:7, 8:13, 14:19, 20:24, 25:30, 31:35, 36:39, 40:45, 46:50, 51:54)
+
+#The scaling vector
+scaling_vec <- apply(subset(wines, select = unlist(sets)), 2, function(x) sqrt(sum((x - mean(x))^2)))
+
+#create the mfa object 
+mymfa <- mfa(wines, sets, ncomps = 2, T, scaling_vec)
+
+#do boostrap 1000 times with a mfa object
+bootstrap(mymfa, 1000)
+```
+
+          
