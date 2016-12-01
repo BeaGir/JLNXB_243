@@ -175,6 +175,7 @@ plot(mymfa, type = 5, X = 1)
 ```
 
 Sample plots: (more to come in Shiny app)
+
 ![Sample for common factor score](plotsample0.png) ![Sample for biplot](plotsample.png)
 
 
