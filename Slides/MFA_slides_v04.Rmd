@@ -204,4 +204,31 @@ Lg_dataset <- Lg_table(dataset2, sets_shift2)
 Lg_dataset
 ```
 
+
+Shiny app for the wine data: how to use it
+========================================================
+We have published a shiny app to exemplify various graphical features of the MFA package for the wines dataset. To use it, simply go to the url:
+https://xzhang.shinyapps.io/Shiny_MFA/
+
+On the app, one can select from one of six different plots. They include:
+1) a plot of common factor scores,
+2) a bipot of partial factor scores and partial loadings for each accessor,
+3) all 10 biplots,
+4) a plot of partial factor scores for each accessor,
+5) a plot of variale loadings for each accessor, and
+6) a barplot of eigenvalues.
+
+For plots 2), 4), and 5), there is a slider input to select the accessor ID.
+
+For plot 6), there is a slider input to indicate the number of components to keep.
+
+There is also a slider input to alter the size of the text and points.
+
+
+Shiny app for the wine data: example
+========================================================
+![Shiny app for the wines dataset](shinyex.png)
+![Shiny app for the wines dataset](shinyex2.png)
+
+
 etc.
