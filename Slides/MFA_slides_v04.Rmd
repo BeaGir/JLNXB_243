@@ -151,7 +151,32 @@ mymfa$common_factor_scores
 
 ## Example using the "MFA" Package
 
-- plotting
+Plotting method
+========================================================
+We can use the plot method of an mfa object to visualize the compromise of tables, partial factor scores, and variable loadings for any given two dimensions
+- There are five different types of plots this method could create
+  - Type 1: plot for factor scores
+  - Type 2: a bipot of partial factor scores and partial loadings for any specific accessor
+  - Type 3: all 10 biplots
+  - Type 4: a plot of partial factor scores for any specific accessor
+  - Type 5: a plot of variale loadings for each accessor
+
+## Example using the "MFA" Package
+
+Plotting method examples
+========================================================
+- to call a specific type of plot, see below examples:
+```{r echo = FALSE}
+plot(mymfa, type = 1)
+plot(mymfa, type = 2, X = 1, loading_labels = c("Cat Pee", "Passion Fruit", "Green Pepper", "Mineral", "Smoky", "Citrus"))
+plot(mymfa, type = 3, loading_labels = NULL)
+plot(mymfa, type = 4, X = 1) 
+plot(mymfa, type = 5, X = 1)
+```
+
+Sample plots: (more to come in Shiny app)
+![Sample for common factor score](plotsample0.png) ![Sample for biplot](plotsample.png)
+
 
 ## Example using the "MFA" Package
 
